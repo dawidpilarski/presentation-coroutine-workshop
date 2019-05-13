@@ -88,11 +88,17 @@ autogobble=true
 
 \begin{columns}
 \begin{column}{0.48\linewidth}
+  \centering
   Function's flow:
+  \vskip 2em
+  \includegraphics[width=0.8\linewidth]{graphics/function-call.png}
 \end{column}
 
 \begin{column}{0.48\linewidth}
-  Coroutines' flow:
+  \centering
+  Coroutine flow:
+  \vskip 2em
+  \includegraphics[width=0.8\linewidth]{graphics/coroutine-workflow.png}
 \end{column}
 
 \end{columns}
@@ -345,7 +351,7 @@ promise.await_suspend(this_coroutine_handle);
 \hrule
 
 \begin{columns}
-\begin{column}{0.3\linewidth}
+\begin{column}{0.35\linewidth}
 \begin{itemize}[<+- |alert@+>]
 \item \code{void}
 \item \code{bool}

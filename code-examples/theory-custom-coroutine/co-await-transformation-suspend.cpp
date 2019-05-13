@@ -20,7 +20,7 @@ if (not await_suspend_result)
   goto resume_point;
 return_to_the_caller();
 //endif
-//if await_suspend returns another coroutine_handle
+//if await_suspend returns coroutine_handle
 decltype(a.await_suspend(
   std::declval<coro_handle_t>()))
 another_coro_handle;
