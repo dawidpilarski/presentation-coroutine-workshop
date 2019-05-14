@@ -12,10 +12,8 @@ bool await_suspend_result;
 try {
   await_suspend_result = a.await_suspend(
                         coroutine_handle);
-} catch (...) {
-  exception = std::current_exception();
-  goto resume_point;
-}
+} catch (...) {/*...*/}
+
 if (not await_suspend_result)
   goto resume_point;
 return_to_the_caller();
@@ -27,10 +25,8 @@ another_coro_handle;
 try {
   another_coro_handle = a.await_suspend(
                        coroutine_handle);
-} catch (...) {
-  exception = std::current_exception();
-  goto resume_point;
-}
+} catch (...) {/*...*/}
+  
 another_coro_handle.resume();
 return_to_the_caller();
 //endif

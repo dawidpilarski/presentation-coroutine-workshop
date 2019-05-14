@@ -9,5 +9,5 @@
   resume_point:
   if(exception)
     std::rethrow_exception(exception);
-  "return" a.await_resume();
+  /*return*/ a.await_resume();
 }

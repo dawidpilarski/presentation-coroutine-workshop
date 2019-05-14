@@ -133,13 +133,31 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{Closer look into built-in coroutines}
-  \alert{include in the view also boost.fiber for comparison}
+
+  \begin{columns}[t]
+  \begin{column}{0.48\linewidth}
+  \centerline{Boost.Fiber}
+  \vfill
+  \begin{itemize}
+  \item Need to allocate the stack for the Fiber/Coroutine
+  \item Can be suspended from the top level functions and below
+  \item Allocation of the memory in advance
+  \item Hard to optimize by compilers
+  \end{itemize}
+  \end{column}
+  \begin{column}{0.48\linewidth}
+  \centerline{\alert{built-in coroutines}}
+  \vfill
   \begin{itemize}[<+- |alert@+>]
   \item Need to allocate the frame for the Coroutine
   \item Can be suspended only from the top level functions
   \item Minimal memory allocation
   \item Easy to optimize by compilers
   \end{itemize}
+  \end{column}
+  
+  \end{columns}
+  
 \end{frame}
 
 \begin{frame}[fragile]{Coroutine declarations}
@@ -153,7 +171,7 @@ autogobble=true
   \end{center}
   \vfill
 
-  Whether the function is a coroutine depends on it's definition.
+  Whether the function is a coroutine depends on \alert{it's definition}.
 
 \end{frame}
 
@@ -165,10 +183,16 @@ autogobble=true
   \end{description}
 \end{frame}
 
-\section{Practical part I - using cppcoro}
+\section{Practical part I - using cppcoro library}
 
 \begin{frame}{generators - Fibonacci sequence}
-  \inputminted[firstline=3]{c++}{code-examples/cppcoro/generator.cpp}
+  \only{\inputminted[firstline=3, highlightlines={3}]{c++}{code-examples/cppcoro/generator.cpp}}<1>
+  \only{\inputminted[firstline=3, highlightlines={4,5}]{c++}{code-examples/cppcoro/generator.cpp}}<2>
+  \only{\inputminted[firstline=3, highlightlines={7,18}]{c++}{code-examples/cppcoro/generator.cpp}}<3>
+  \only{\inputminted[firstline=3, highlightlines={8}]{c++}{code-examples/cppcoro/generator.cpp}}<4>
+  \only{\inputminted[firstline=3, highlightlines={9,10}]{c++}{code-examples/cppcoro/generator.cpp}}<5>
+  \only{\inputminted[firstline=3, highlightlines={11,12}]{c++}{code-examples/cppcoro/generator.cpp}}<6>
+  \only{\inputminted[firstline=3, highlightlines={13-17}]{c++}{code-examples/cppcoro/generator.cpp}}<7>
 \end{frame}
 
 \begin{frame}{generators - excercise}
@@ -182,15 +206,20 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{tasks and events}
-  \inputminted[firstline=8]{c++}{code-examples/cppcoro/events.cpp}
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={48, 63}]{c++}{code-examples/cppcoro/events.cpp}}<1>
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={49, 56, 57, 63}]{c++}{code-examples/cppcoro/events.cpp}}<2>
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={50, 55}]{c++}{code-examples/cppcoro/events.cpp}}<3>
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={51}]{c++}{code-examples/cppcoro/events.cpp}}<4>
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={52}]{c++}{code-examples/cppcoro/events.cpp}}<5>
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={53, 54}]{c++}{code-examples/cppcoro/events.cpp}}<6>
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={58, 61}]{c++}{code-examples/cppcoro/events.cpp}}<7>
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={62}]{c++}{code-examples/cppcoro/events.cpp} \alert{wtf?}}<8>
 \end{frame}
 
 \begin{frame}{tasks and events excercise}
   \centerline{Write an application, that will at the same time (almost)}
 
-  CHECK IF IT WORKS
-
-  implement framework for that.
+  \uppercase{implement framework for that.}
 
   \begin{itemize}
     \item Read large content from a file
@@ -208,7 +237,12 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{other (for now only msvc)}
-  \inputminted[firstline=4]{c++}{code-examples/cppcoro/io.cpp}
+  \only{\inputminted[firstline=4, highlightlines={4}]{c++}{code-examples/cppcoro/io.cpp}}<1>
+  \only{\inputminted[firstline=4, highlightlines={6}]{c++}{code-examples/cppcoro/io.cpp}}<2>
+  \only{\inputminted[firstline=4, highlightlines={8-11}]{c++}{code-examples/cppcoro/io.cpp}}<3>
+  \only{\inputminted[firstline=4, highlightlines={12,17}]{c++}{code-examples/cppcoro/io.cpp}}<4>
+  \only{\inputminted[firstline=4, highlightlines={14}]{c++}{code-examples/cppcoro/io.cpp}}<5>
+  \only{\inputminted[firstline=4, highlightlines={15-16}]{c++}{code-examples/cppcoro/io.cpp}}<6>
 \end{frame}
 
 \section{Theory - implementing own coroutines types}
@@ -217,9 +251,8 @@ autogobble=true
   \begin{itemize}[<+- |alert@+>]
     \item promise\_type is responsible for coroutine's behavior:
     \begin{itemize}
-      \item on coroutine's start
+      \item on coroutine's start and stop
       \item on throwing unhandled exception
-      \item on coroutine's end
       \item on returning the value
       \item on yielding the value
       \item partially on waiting for the task's completion
@@ -227,24 +260,30 @@ autogobble=true
     \item promise\_type is strongly connected with coroutine's returned type
     \begin{itemize}[<+- |alert@+>]
       \item it can be a member of the returned type \code{returned\_type::promise\_type}
-      \item it can be defined as (CHECK IT) \code{std::coroutine\_traits<returned\_type>::promise\_type}
+      \item it can be defined as \code{std::coroutine\_traits<returned\_type>::promise\_type}
     \end{itemize}
   
   \end{itemize}
 \end{frame}
 
 \begin{frame}{coroutine body}
-ADD highlighting to the presentation
 \centerline{Each time we write coroutine, compiler modifies it's body into following form:}
-\inputminted[firstline=1]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}
+\only{\inputminted[firstline=1, highlightlines={2}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<1>
+\only{\inputminted[firstline=1, highlightlines={3}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<2>
+\only{\inputminted[firstline=1, highlightlines={4}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<3>
+\only{\inputminted[firstline=1, highlightlines={6,8,10}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<4>
+\only{\inputminted[firstline=1, highlightlines={7}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<5>
+\only{\inputminted[firstline=1, highlightlines={9}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<6>
+\only{\inputminted[firstline=1, highlightlines={12,13}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<7>
+\only{\inputminted[firstline=1, highlightlines={15}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<8>
 \end{frame}
 
 \begin{frame}{promise\_type extensions}
 \centerline{We can extend the coroutine body with:}
 \begin{itemize}
-  \item (mandatory) support for returning void or returning value
+  \item (mandatory) support for \alert{returning void} or \alert{returning value}
   \item custom memory allocation algorithm (custom \code{operator new})
-  \item (optional) support for yielding intermediate values
+  \item (optional) support for \alert{yielding intermediate values}
 \end{itemize}
 \end{frame}
 
@@ -355,18 +394,22 @@ co_await promise.
 \begin{frame}{co\_await translation}
 \centerline{If compiler meets the co\_await it gets translated into following code:}
 
-\inputminted{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}
+\only{\inputminted[highlightlines={3, 7}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<1>
+\only{\inputminted[highlightlines={9, 12}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<2>
+\only{\inputminted[highlightlines={4}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<3>
+\only{\inputminted[highlightlines={6, 2}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<4>
+\only{\inputminted[highlightlines={12}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<5>
+\only{\inputminted[highlightlines={10, 11}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<6>
 \end{frame}
 
 \begin{frame}[fragile]{Await suspend}
 % nothing yet said about the coroutine_handle
-await suspend is of the following form:
-
-\begin{minted}{c++}
-promise.await_suspend(this_coroutine_handle);
+\centerline{await suspend is of the following form:}
+\begin{minted}[autogobble=false]{c++}
+               promise.await_suspend(this_coroutine_handle);
 \end{minted}
 
-\code{await\_suspend} might return following types:
+\centerline{\code{await\_suspend} might return:}
 \vskip 1em
 \hrule
 
@@ -384,10 +427,10 @@ promise.await_suspend(this_coroutine_handle);
 \inputminted[firstline=1, lastline=9, linenos=false]{c++}{code-examples/theory-custom-coroutine/co-await-transformation-suspend.cpp}
 \end{onlyenv}
 \begin{onlyenv}<2>
-\inputminted[firstline=10, lastline=22, linenos=false]{c++}{code-examples/theory-custom-coroutine/co-await-transformation-suspend.cpp}
+\inputminted[firstline=10, lastline=20, linenos=false]{c++}{code-examples/theory-custom-coroutine/co-await-transformation-suspend.cpp}
 \end{onlyenv}
 \begin{onlyenv}<3>
-\inputminted[firstline=23, linenos=false]{c++}{code-examples/theory-custom-coroutine/co-await-transformation-suspend.cpp}
+\inputminted[firstline=21, linenos=false]{c++}{code-examples/theory-custom-coroutine/co-await-transformation-suspend.cpp}
 \end{onlyenv}
 \end{column}
 \end{columns}
