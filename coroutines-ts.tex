@@ -106,14 +106,18 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{Possible coroutines implementations}
-\centering
-\begin{columns}
+\begin{columns}[t]
 \begin{column}{0.48\linewidth}
-  Language based
+  \centering Language based
+  \vskip 2em
+  \includegraphics[width=.8\linewidth]{graphics/cppcoro-creation.png}
 \end{column}
 
 \begin{column}{0.48\linewidth}
+\centering
   Library based
+  \vskip 2em
+  \includegraphics[width=.8\linewidth]{graphics/coroutine-interaction.png}
 \end{column}
 \end{columns}
 
@@ -129,11 +133,12 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{Closer look into built-in coroutines}
+  \alert{include in the view also boost.fiber for comparison}
   \begin{itemize}[<+- |alert@+>]
-  \item Need to allocate the stack for the Coroutine
+  \item Need to allocate the frame for the Coroutine
   \item Can be suspended only from the top level functions
+  \item Minimal memory allocation
   \item Easy to optimize by compilers
-  \item "Easy" to optimize by the compilers
   \end{itemize}
 \end{frame}
 
@@ -162,7 +167,7 @@ autogobble=true
 
 \section{Practical part I - using cppcoro}
 
-\begin{frame}{generators}
+\begin{frame}{generators - Fibonacci sequence}
   \inputminted[firstline=3]{c++}{code-examples/cppcoro/generator.cpp}
 \end{frame}
 
@@ -181,7 +186,17 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{tasks and events excercise}
-  What should be here?
+  \centerline{Write an application, that will at the same time (almost)}
+
+  CHECK IF IT WORKS
+
+  implement framework for that.
+
+  \begin{itemize}
+    \item Read large content from a file
+    \item Display dots every second
+  \end{itemize}
+
 \end{frame}
 
 \begin{frame}{other (for now only msvc)}
@@ -200,11 +215,6 @@ autogobble=true
 
 \begin{frame}{promise\_type}
   \begin{itemize}[<+- |alert@+>]
-    \item promise\_type is strongly connected with coroutine's returned type
-    \begin{itemize}[<+- |alert@+>]
-      \item it can be a member of the returned type \code{returned\_type::promise\_type}
-      \item it can be defined as \code{std::coroutine\_traits<returned\_type>::promise\_type}
-    \end{itemize}
     \item promise\_type is responsible for coroutine's behavior:
     \begin{itemize}
       \item on coroutine's start
@@ -214,11 +224,17 @@ autogobble=true
       \item on yielding the value
       \item partially on waiting for the task's completion
     \end{itemize}
+    \item promise\_type is strongly connected with coroutine's returned type
+    \begin{itemize}[<+- |alert@+>]
+      \item it can be a member of the returned type \code{returned\_type::promise\_type}
+      \item it can be defined as (CHECK IT) \code{std::coroutine\_traits<returned\_type>::promise\_type}
+    \end{itemize}
   
   \end{itemize}
 \end{frame}
 
 \begin{frame}{coroutine body}
+ADD highlighting to the presentation
 \centerline{Each time we write coroutine, compiler modifies it's body into following form:}
 \inputminted[firstline=1]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}
 \end{frame}
@@ -226,13 +242,13 @@ autogobble=true
 \begin{frame}{promise\_type extensions}
 \centerline{We can extend the coroutine body with:}
 \begin{itemize}
-  \item mandatory support for returning void or returning value
+  \item (mandatory) support for returning void or returning value
   \item custom memory allocation algorithm (custom \code{operator new})
-  \item optional support for yielding intermediate values
+  \item (optional) support for yielding intermediate values
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{co\_return}
+\begin{frame}[fragile]{co\_return - support for returning from coroutine}
 \centerline{\alert{\code{co\_return}} is a new keyword}
 
 \begin{columns}[T]
@@ -285,7 +301,7 @@ autogobble=true
 \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{co\_yield}
+\begin{frame}[fragile]{co\_yield - support for returning intemediate values}
 \centerline{\alert{\code{co\_yield}} is a new keyword}
 
 \begin{columns}
@@ -319,6 +335,10 @@ co_await promise.
   \item[\code{co\_await std::experimental::suspend\_always\{\}}] - \hfill \\ suspends the coroutine
   \item[\code{co\_await std::experimental::suspend\_never\{\}}] - \hfill \\ does nothing
 \end{description}
+
+\end{frame}
+
+\begin{frame}{excercise here!}
 
 \end{frame}
 
@@ -436,19 +456,48 @@ promise.await_suspend(this_coroutine_handle);
 \section{Practical part II - implementing own coroutines types}
 
 \begin{frame}{lazy}
-
+\centerline{type for lazy initialization}
+\vfill
+requirements:
+\begin{itemize}
+  \item synchronous (no support for multithreading + no support for co\_await).
+  \item no sharing of the value (no copy, only move constructor).
+  \item interface simillar to the std::optional.
+\end{itemize}
 \end{frame}
 
 \begin{frame}{generator}
-
+  \centerline{type for generating sequences}
+  \vfill
+  requirements:
+  \begin{itemize}
+    \item synchronous (no support for multithreading + no support for co\_await).
+    \item next method should return the value and resume the coroutine.
+    \item interface simillar to the std::optional
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{task}
-
+  \centerline{type for asynchronous operations}
+  \vfill
+  requirements:
+  \begin{itemize}
+    \item single-threaded
+    \item asynchronous (support for the co\_await)
+    \item coroutine after finishing must resume the co\_awaiting coroutine
+    \item some kind of the executor needed to start the coroutines (GitHub)
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{event}
-
+  \centerline{type for communication of the tasks}
+  \vfill
+  requirements:
+  \begin{itemize}
+  \item stores information whether the event is set.
+  \item stores the continuation object.
+  \item launches the continuation on setting up the event.
+  \end{itemize}
 \end{frame}
 
 \end{document}
