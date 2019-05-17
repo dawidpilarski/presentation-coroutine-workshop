@@ -7,6 +7,7 @@
 \usepackage{multirow}
 \usepackage{pgfpages}
 \usepackage{pifont}
+\usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
@@ -104,6 +105,19 @@ autogobble=true
 \end{columns}
 
 \end{frame}
+
+\begin{frame}{What are coroutines for?}
+\centerline{Common use cases for the coroutines are:}
+  
+      \begin{itemize}
+        \item lazy computation of the sequences (generators)
+        \item easier asynchronous code
+        \item automagical error propagation (more of a hack but still)
+      \end{itemize}
+
+  
+\end{frame}
+
 
 \begin{frame}{Possible coroutines implementations}
 \begin{columns}[t]
@@ -213,19 +227,8 @@ autogobble=true
   \only{\inputminted[firstline=48, lastline=63, highlightlines={52}]{c++}{code-examples/cppcoro/events.cpp}}<5>
   \only{\inputminted[firstline=48, lastline=63, highlightlines={53, 54}]{c++}{code-examples/cppcoro/events.cpp}}<6>
   \only{\inputminted[firstline=48, lastline=63, highlightlines={58, 61}]{c++}{code-examples/cppcoro/events.cpp}}<7>
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={62}]{c++}{code-examples/cppcoro/events.cpp} \alert{wtf?}}<8>
-\end{frame}
-
-\begin{frame}{tasks and events excercise}
-  \centerline{Write an application, that will at the same time (almost)}
-
-  \uppercase{implement framework for that.}
-
-  \begin{itemize}
-    \item Read large content from a file
-    \item Display dots every second
-  \end{itemize}
-
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={59,60}]{c++}{code-examples/cppcoro/events.cpp}}<8>
+  \only{\inputminted[firstline=48, lastline=63, highlightlines={62}]{c++}{code-examples/cppcoro/events.cpp} \alert{wtf?}}<9>
 \end{frame}
 
 \begin{frame}{other (for now only msvc)}
@@ -245,7 +248,7 @@ autogobble=true
   \only{\inputminted[firstline=4, highlightlines={15-16}]{c++}{code-examples/cppcoro/io.cpp}}<6>
 \end{frame}
 
-\section{Theory - implementing own coroutines types}
+\section{Theory - promise\_types}
 
 \begin{frame}{promise\_type}
   \begin{itemize}[<+- |alert@+>]
@@ -377,9 +380,55 @@ co_await promise.
 
 \end{frame}
 
-\begin{frame}{excercise here!}
+\begin{frame}{Ok, ok but how do I even resume the coroutine?}
+  \centering The low-level interface to the type-erased coroutine is \code{\alert{coroutine\_handle}} object.
+
+  \only{\inputminted[highlightlines={1}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle.h}}<1>
+  \only{\inputminted[highlightlines={2,3}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle.h}}<2>
+  \only{\inputminted[highlightlines={4}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle.h}}<3>
+  \only{\inputminted[highlightlines={6,7}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle.h}}<4>
+  \only{\inputminted[highlightlines={9, 10}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle.h}}<5>
+  \only{\inputminted[highlightlines={12, 13}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle.h}}<6>
+  \only{\inputminted[highlightlines={15}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle.h}}<7>
+\end{frame}
+
+\begin{frame}{And how do I get the coroutine\_handle object?}
+\centerline{\code{\alert{coroutine\_handles}} are specialized for \code{\alert{promise\_type}}}
+
+  \only{\inputminted[highlightlines={1}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle-promise.h}}<1>
+  \only{\inputminted[highlightlines={2}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle-promise.h}}<2>
+  \only{\inputminted[highlightlines={4}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle-promise.h}}<3>
+  \only{\inputminted[highlightlines={5, 10}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle-promise.h}}<4>
+  \only{\inputminted[highlightlines={6, 8}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle-promise.h}}<5>
+
 
 \end{frame}
+
+\section{Promise\_type excercise}
+
+\begin{frame}{promise\_type excercise - lazy}
+\centerline{type for lazy initialization}
+\vfill
+requirements:
+\begin{itemize}
+  \item synchronous (no support for multithreading + no support for co\_await).
+  \item no sharing of the value (no copy, only move constructor).
+  \item interface simillar to the std::optional.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{promise\_type excercise - generator}
+  \centerline{type for generating sequences}
+  \vfill
+  requirements:
+  \begin{itemize}
+    \item synchronous (no support for multithreading + no support for co\_await).
+    \item next method should return the value and resume the coroutine.
+    \item interface simillar to the std::optional
+  \end{itemize}
+\end{frame}
+
+\section{Asynchronous coroutines}
 
 \begin{frame}{co\_await}
 \centerline{\alert{co\_await} is a new keyword}
@@ -496,29 +545,7 @@ co_await promise.
 \end{columns}
 \end{frame}
 
-\section{Practical part II - implementing own coroutines types}
-
-\begin{frame}{lazy}
-\centerline{type for lazy initialization}
-\vfill
-requirements:
-\begin{itemize}
-  \item synchronous (no support for multithreading + no support for co\_await).
-  \item no sharing of the value (no copy, only move constructor).
-  \item interface simillar to the std::optional.
-\end{itemize}
-\end{frame}
-
-\begin{frame}{generator}
-  \centerline{type for generating sequences}
-  \vfill
-  requirements:
-  \begin{itemize}
-    \item synchronous (no support for multithreading + no support for co\_await).
-    \item next method should return the value and resume the coroutine.
-    \item interface simillar to the std::optional
-  \end{itemize}
-\end{frame}
+\section{Asynchronous coroutines - excercises}
 
 \begin{frame}{task}
   \centerline{type for asynchronous operations}
@@ -541,6 +568,39 @@ requirements:
   \item stores the continuation object.
   \item launches the continuation on setting up the event.
   \end{itemize}
+\end{frame}
+
+\begin{frame}{Thank you!}
+\centerline{Questions?}
+\vfill
+
+\begin{columns}[t]
+\footnotesize
+\begin{column}{0.48\linewidth}
+\centerline{recommended lecture:}
+\vskip 0.5em
+\hrule
+\begin{itemize}
+  \item \href{https://lewissbaker.github.io/}{\alert{Lewiss Baker blog}}
+  \item \href{https://blog.panicsoftware.com/}{\alert{My blog}}
+  \item \href{https://programistamag.pl/}{\alert{"programista" magazine}}
+  \item \href{eel.is/c++draft/}{\alert{current C++ standard draft}}
+  \item {coroutine channel on cpplang slack}
+\end{itemize}
+\end{column}
+
+\begin{column}{0.48\linewidth}
+\centerline{recommended videos:}
+\vskip 0.5em
+\hrule
+\begin{itemize}
+  \item \href{https://www.youtube.com/watch?v=8C8NnE1Dg4A}{\alert{Gor Nishanov \\ "C++ Coroutines: Under the covers"}}
+  \item \href{https://www.youtube.com/watch?v=mlP1MKP8d_Q}{\alert{Toby Allsopp \\ "Coroutines: what can't they do"}}
+  \item \href{https://www.youtube.com/watch?v=ZTqHjjm86Bw}{\alert{James McNellis \\ "Introduction to C++ Coroutines"}}
+\end{itemize}
+\end{column}
+\end{columns}
+
 \end{frame}
 
 \end{document}
