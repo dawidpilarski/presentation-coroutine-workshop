@@ -40,29 +40,32 @@ scheduler start_task(task<> task) {
   co_await task;
 }
 
-void sched(task<> task1, task<> task2) {
-  start_task(std::move(task1));
-  start_task(std::move(task2));
+template <typename... Task>
+void sched(Task&&... tasks) {
+  (start_task(std::move(tasks)),...);
 }
 
 void test() {
-  single_consumer_event event;
+  single_consumer_event ev_ping;
+  single_consumer_event ev_pong;
   sched(
-      [&]() -> cppcoro::task<> {
-        while (true) {
-          co_await event;
-          event.reset();
-          std::cout << "pong" << std::endl;
-          std::this_thread::sleep_for(1000ms);
-        }
-      }(),
-      [&]() -> cppcoro::task<> {
-        while (true) {
-          std::cout << "ping" << std::endl;
-          event.set();
-        }
-        co_return;
-      }());
+    [&]() -> cppcoro::task<> {
+      while (true) {
+        co_await ev_ping;
+        std::cout << "ping" << std::endl;
+        ev_ping.reset();
+        ev_pong.set();
+      }
+    }(),
+    [&]() -> cppcoro::task<> {
+      while (true) {
+        ev_ping.set();
+        co_await ev_pong;
+        ev_pong.reset();
+        std::cout << "pong" << std::endl;
+        std::this_thread::sleep_for(1000ms);
+      }
+    }());
 }
 
 

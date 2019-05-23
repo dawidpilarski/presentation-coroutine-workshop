@@ -7,6 +7,7 @@
 \usepackage{multirow}
 \usepackage{pgfpages}
 \usepackage{pifont}
+\usepackage[export]{adjustbox}
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -108,16 +109,99 @@ autogobble=true
 
 \begin{frame}{What are coroutines for?}
 \centerline{Common use cases for the coroutines are:}
-  
-      \begin{itemize}
+      \begin{itemize}[<+- |alert@+>]
         \item lazy computation of the sequences (generators)
-        \item easier asynchronous code
+        \item possibility of introducing asynchronous code with one thread
+        \item non blocking I/O operations
+        \item lightweight "concurrency"
         \item automagical error propagation (more of a hack but still)
       \end{itemize}
-
-  
 \end{frame}
 
+\begin{frame}{Example coroutines usage}
+\includegraphics[max size={\textwidth}{\textheight}]{graphics/coro-example-scheduler/coro-0.png}
+\end{frame}
+
+\begin{frame}{Example coroutines usage}
+\includegraphics[max size={\textwidth}{\textheight}]{graphics/coro-example-scheduler/coro-1.png}
+\end{frame}
+
+\begin{frame}{Example coroutines usage}
+\includegraphics[max size={\textwidth}{\textheight}]{graphics/coro-example-scheduler/coro-2.png}
+\end{frame}
+
+\begin{frame}{Example coroutines usage}
+\includegraphics[max size={\textwidth}{\textheight}]{graphics/coro-example-scheduler/coro-3.png}
+\end{frame}
+
+\begin{frame}{Example coroutines usage}
+\includegraphics[max size={\textwidth}{\textheight}]{graphics/coro-example-scheduler/coro-4.png}
+\end{frame}
+
+\begin{frame}{Example coroutines usage}
+\includegraphics[max size={\textwidth}{\textheight}]{graphics/coro-example-scheduler/coro-5.png}
+\end{frame}
+
+\begin{frame}{Example coroutines usage}
+\includegraphics[max size={\textwidth}{\textheight}]{graphics/coro-example-scheduler/coro-6.png}
+\end{frame}
+
+\begin{frame}[fragile]{The state}
+
+\centerline{Imagine you want to suspend a function:}
+
+\vfill
+
+\begin{columns}
+\begin{column}{0.48\linewidth}
+\begin{minted}[autogobble=false]{c++}
+    void foo(){
+      int a = 0;
+      int b = 1;
+      int c = 1;
+  
+      co_yield a;
+      co_yield b;
+      co_yield c;
+    }
+\end{minted}
+\end{column}
+\pause
+\begin{column}{0.48\linewidth}
+
+\centerline{issues:}
+
+\begin{itemize}[<+- |alert@+>]
+  \item on suspension variables needs to be saved somewhere
+  \item coroutine needs to know where it suspended last time
+\end{itemize}
+
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]{How to achieve that?}
+\begin{minted}[autogobble=false]{c++}
+    struct foo_state{
+      int a=0; int b=1; int c=1;
+      int recent_point=0;
+    };
+
+    void foo(foo_state* state){
+      if(state.recent_point == 0) goto recent_point_0;
+      if(state.recent_point == 1) goto recent_point_1;
+      if(state.recent_point == 2) goto recent_point_2;
+  
+      recent_point_0:
+      return state.a;
+      recent_point_1:
+      return state.b;
+      recent_point_2:
+      return state.c;
+    }
+\end{minted}
+\end{frame}
 
 \begin{frame}{Possible coroutines implementations}
 \begin{columns}[t]
@@ -191,9 +275,9 @@ autogobble=true
 
 \begin{frame}{3 new keywords}
   \begin{description}
-    \item [\code{co\_return}] \hfill \\ Returning (or not) value and finishing the coroutine
-    \item [\code{co\_yield}] \hfill \\ Returning intermediate value from the coroutine
-    \item [\code{co\_await}] \hfill \\ Awaiting completion of the "task"
+    \item [\code{\alert{co\_return}}] \hfill \\ Returning (or not) value and finishing the coroutine
+    \item [\code{\alert{co\_yield}}] \hfill \\ Returning intermediate value from the coroutine
+    \item [\code{\alert{co\_await}}] \hfill \\ Awaiting completion of the "task"
   \end{description}
 \end{frame}
 
@@ -220,15 +304,16 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{tasks and events}
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={48, 63}]{c++}{code-examples/cppcoro/events.cpp}}<1>
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={49, 56, 57, 63}]{c++}{code-examples/cppcoro/events.cpp}}<2>
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={50, 55}]{c++}{code-examples/cppcoro/events.cpp}}<3>
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={51}]{c++}{code-examples/cppcoro/events.cpp}}<4>
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={52}]{c++}{code-examples/cppcoro/events.cpp}}<5>
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={53, 54}]{c++}{code-examples/cppcoro/events.cpp}}<6>
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={58, 61}]{c++}{code-examples/cppcoro/events.cpp}}<7>
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={59,60}]{c++}{code-examples/cppcoro/events.cpp}}<8>
-  \only{\inputminted[firstline=48, lastline=63, highlightlines={62}]{c++}{code-examples/cppcoro/events.cpp} \alert{wtf?}}<9>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={47, 48}]{c++}{code-examples/cppcoro/events.cpp}}<1>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={49, 66}]{c++}{code-examples/cppcoro/events.cpp}}<2>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={50, 57, 58, 66}]{c++}{code-examples/cppcoro/events.cpp}}<3>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={51, 56}]{c++}{code-examples/cppcoro/events.cpp}}<4>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={52}]{c++}{code-examples/cppcoro/events.cpp}}<5>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={53}]{c++}{code-examples/cppcoro/events.cpp}}<6>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={54, 55}]{c++}{code-examples/cppcoro/events.cpp}}<7>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={59, 65}]{c++}{code-examples/cppcoro/events.cpp}}<8>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={60-62}]{c++}{code-examples/cppcoro/events.cpp}}<9>
+  \only{\inputminted[firstline=47, lastline=68, highlightlines={63,64}]{c++}{code-examples/cppcoro/events.cpp}}<10>
 \end{frame}
 
 \begin{frame}{other (for now only msvc)}
@@ -237,15 +322,6 @@ autogobble=true
     \item file I/O operations
     \item networking operations
   \end{itemize}
-\end{frame}
-
-\begin{frame}{other (for now only msvc)}
-  \only{\inputminted[firstline=4, highlightlines={4}]{c++}{code-examples/cppcoro/io.cpp}}<1>
-  \only{\inputminted[firstline=4, highlightlines={6}]{c++}{code-examples/cppcoro/io.cpp}}<2>
-  \only{\inputminted[firstline=4, highlightlines={8-11}]{c++}{code-examples/cppcoro/io.cpp}}<3>
-  \only{\inputminted[firstline=4, highlightlines={12,17}]{c++}{code-examples/cppcoro/io.cpp}}<4>
-  \only{\inputminted[firstline=4, highlightlines={14}]{c++}{code-examples/cppcoro/io.cpp}}<5>
-  \only{\inputminted[firstline=4, highlightlines={15-16}]{c++}{code-examples/cppcoro/io.cpp}}<6>
 \end{frame}
 
 \section{Theory - promise\_types}
@@ -291,7 +367,7 @@ autogobble=true
 \end{frame}
 
 \begin{frame}[fragile]{co\_return - support for returning from coroutine}
-\centerline{\alert{\code{co\_return}} is a new keyword}
+\centerline{\alert{\code{co\_return}}}
 
 \begin{columns}[T]
   \begin{column}{0.48\linewidth}
@@ -344,7 +420,7 @@ autogobble=true
 \end{frame}
 
 \begin{frame}[fragile]{co\_yield - support for returning intemediate values}
-\centerline{\alert{\code{co\_yield}} is a new keyword}
+\centerline{\alert{\code{co\_yield}}}
 
 \begin{columns}
 \begin{column}{0.48\linewidth}
@@ -431,7 +507,7 @@ requirements:
 \section{Asynchronous coroutines}
 
 \begin{frame}{co\_await}
-\centerline{\alert{co\_await} is a new keyword}
+\centerline{\alert{co\_await}}
 
 \begin{itemize}
   \item represents awaiting for operations' completion
@@ -455,7 +531,7 @@ requirements:
 % nothing yet said about the coroutine_handle
 \centerline{await suspend is of the following form:}
 \begin{minted}[autogobble=false]{c++}
-               promise.await_suspend(this_coroutine_handle);
+               awaitable.await_suspend(this_coroutine_handle);
 \end{minted}
 
 \centerline{\code{await\_suspend} might return:}
@@ -547,6 +623,15 @@ requirements:
 
 \section{Asynchronous coroutines - excercises}
 
+\begin{frame}{What is the task?}
+  \only{\inputminted[firstline=4, highlightlines={4}]{c++}{code-examples/cppcoro/io.cpp}}<1>
+  \only{\inputminted[firstline=4, highlightlines={6}]{c++}{code-examples/cppcoro/io.cpp}}<2>
+  \only{\inputminted[firstline=4, highlightlines={8-11}]{c++}{code-examples/cppcoro/io.cpp}}<3>
+  \only{\inputminted[firstline=4, highlightlines={12,17}]{c++}{code-examples/cppcoro/io.cpp}}<4>
+  \only{\inputminted[firstline=4, highlightlines={14}]{c++}{code-examples/cppcoro/io.cpp}}<5>
+  \only{\inputminted[firstline=4, highlightlines={15-16}]{c++}{code-examples/cppcoro/io.cpp}}<6>
+\end{frame}
+
 \begin{frame}{task}
   \centerline{type for asynchronous operations}
   \vfill
@@ -555,7 +640,7 @@ requirements:
     \item single-threaded
     \item asynchronous (support for the co\_await)
     \item coroutine after finishing must resume the co\_awaiting coroutine
-    \item some kind of the executor needed to start the coroutines (GitHub)
+    \item some kind of the executor needed to start the coroutines
   \end{itemize}
 \end{frame}
 
