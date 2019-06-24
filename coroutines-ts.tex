@@ -156,13 +156,11 @@ autogobble=true
 \begin{column}{0.48\linewidth}
 \begin{minted}[autogobble=false]{c++}
     void foo(){
-      int a = 0;
-      int b = 1;
-      int c = 1;
-  
-      co_yield a;
-      co_yield b;
-      co_yield c;
+      int a = 1;
+
+      co_yield a++;
+      co_yield a++;
+      co_yield a++;
     }
 \end{minted}
 \end{column}
@@ -184,7 +182,7 @@ autogobble=true
 \begin{frame}[fragile]{How to achieve that?}
 \begin{minted}[autogobble=false]{c++}
     struct foo_state{
-      int a=0; int b=1; int c=1;
+      int a=1;
       int recent_point=0;
     };
 
@@ -194,11 +192,11 @@ autogobble=true
       if(state.recent_point == 2) goto recent_point_2;
   
       recent_point_0:
-      return state.a;
+      return state.a++;
       recent_point_1:
-      return state.b;
+      return state.a++;
       recent_point_2:
-      return state.c;
+      return state.a++;
     }
 \end{minted}
 \end{frame}
@@ -286,21 +284,23 @@ autogobble=true
 \begin{frame}{generators - Fibonacci sequence}
   \only{\inputminted[firstline=3, highlightlines={3}]{c++}{code-examples/cppcoro/generator.cpp}}<1>
   \only{\inputminted[firstline=3, highlightlines={4,5}]{c++}{code-examples/cppcoro/generator.cpp}}<2>
-  \only{\inputminted[firstline=3, highlightlines={7,18}]{c++}{code-examples/cppcoro/generator.cpp}}<3>
+  \only{\inputminted[firstline=3, highlightlines={7,12}]{c++}{code-examples/cppcoro/generator.cpp}}<3>
   \only{\inputminted[firstline=3, highlightlines={8}]{c++}{code-examples/cppcoro/generator.cpp}}<4>
-  \only{\inputminted[firstline=3, highlightlines={9,10}]{c++}{code-examples/cppcoro/generator.cpp}}<5>
-  \only{\inputminted[firstline=3, highlightlines={11,12}]{c++}{code-examples/cppcoro/generator.cpp}}<6>
-  \only{\inputminted[firstline=3, highlightlines={13-17}]{c++}{code-examples/cppcoro/generator.cpp}}<7>
+  \only{\inputminted[firstline=3, highlightlines={9-11}]{c++}{code-examples/cppcoro/generator.cpp}}<5>
 \end{frame}
 
 \begin{frame}{generators - excercise}
-  % https://edublognss.wordpress.com/2013/04/16/famous-mathematical-sequences-and-series/
   \centering Implement any generator:
 
   \begin{itemize}
     \item square number series \hskip 2em \includegraphics[width=0.3\linewidth]{graphics/square-series.png}
     \item triangular number series \hskip 2em \includegraphics[width=0.3\linewidth]{graphics/triangular-series.png}
   \end{itemize}
+
+  \vfill
+
+  \footnotesize \href{https://edublognss.wordpress.com/2013/04/16/famous-mathematical-sequences-and-series/}{\alert{source}}
+
 \end{frame}
 
 \begin{frame}{tasks and events}
