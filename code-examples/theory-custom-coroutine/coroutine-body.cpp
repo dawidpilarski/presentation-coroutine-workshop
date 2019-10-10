@@ -11,6 +11,4 @@
 
   final_suspend:
   co_await promise.final_suspend();
-
-  return return_object;
 }

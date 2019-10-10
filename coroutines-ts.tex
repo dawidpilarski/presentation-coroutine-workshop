@@ -114,7 +114,6 @@ autogobble=true
         \item possibility of introducing asynchronous code with one thread
         \item non blocking I/O operations
         \item lightweight "concurrency"
-        \item automagical error propagation (more of a hack but still)
       \end{itemize}
 \end{frame}
 
@@ -155,7 +154,7 @@ autogobble=true
 \begin{columns}
 \begin{column}{0.48\linewidth}
 \begin{minted}[autogobble=false]{c++}
-    void foo(){
+    int foo(){
       int a = 1;
 
       co_yield a++;
@@ -186,7 +185,7 @@ autogobble=true
       int recent_point=0;
     };
 
-    void foo(foo_state* state){
+    int foo(foo_state* state){
       if(state.recent_point == 0) goto recent_point_0;
       if(state.recent_point == 1) goto recent_point_1;
       if(state.recent_point == 2) goto recent_point_2;
@@ -290,12 +289,10 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{generators - excercise}
-  \centering Implement any generator:
+  \centering Implement generator:
 
-  \begin{itemize}
-    \item square number series \hskip 2em \includegraphics[width=0.3\linewidth]{graphics/square-series.png}
-    \item triangular number series \hskip 2em \includegraphics[width=0.3\linewidth]{graphics/triangular-series.png}
-  \end{itemize}
+    \centering triangular number series \hskip 2em \includegraphics[width=0.3\linewidth]{graphics/triangular-series.png}
+
 
   \vfill
 
@@ -354,7 +351,6 @@ autogobble=true
 \only{\inputminted[firstline=1, highlightlines={7}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<5>
 \only{\inputminted[firstline=1, highlightlines={9}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<6>
 \only{\inputminted[firstline=1, highlightlines={12,13}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<7>
-\only{\inputminted[firstline=1, highlightlines={15}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<8>
 \end{frame}
 
 \begin{frame}{promise\_type extensions}
