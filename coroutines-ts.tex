@@ -7,6 +7,7 @@
 \usepackage{multirow}
 \usepackage{pgfpages}
 \usepackage{pifont}
+\usepackage{textpos}
 \usepackage[export]{adjustbox}
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
@@ -36,6 +37,12 @@
 %\setbeamercolor{progress bar in head/foot}{ ... }
 %\setbeamercolor{progress bar in section page}{ ... }
 
+
+\addtobeamertemplate{frametitle}{}{%
+\begin{textblock*}{100mm}(1\textwidth, -1cm)
+\includegraphics[height=0.97cm]{TT_Logo_bckg.png}
+\end{textblock*}}
+
 \newcommand{\code}[1]{\texttt{#1}}
 
 \usepackage{booktabs}
@@ -47,12 +54,11 @@
 
 \usepackage{xspace}
 
-\title{Coroutines}
-\subtitle{All you need to know about the coroutines}
+\title{Generators}
+\subtitle{Introduction to the coroutines.}
 \date{}
 \author{Dawid Pilarski}
-\institute{dawid.pilarski@panicsoftware.com \\ blog.panicsoftware.com}
-
+\institute{dawid.pilarski@tomtom.com \\ dawid.pilarski@panicsoftware.com \\ blog.panicsoftware.com}
 
 \setminted[c++]
 {
@@ -112,8 +118,6 @@ autogobble=true
       \begin{itemize}[<+- |alert@+>]
         \item lazy computation of the sequences (generators)
         \item possibility of introducing asynchronous code with one thread
-        \item non blocking I/O operations
-        \item lightweight "concurrency"
       \end{itemize}
 \end{frame}
 
@@ -223,7 +227,6 @@ autogobble=true
   \item Need to allocate the stack for the Fiber/Coroutine
   \item Can be suspended from the top level functions and below
   \item Allocation of the memory in advance
-  \item Hard to optimize by compilers
   \end{itemize}
 \end{frame}
 
@@ -237,7 +240,6 @@ autogobble=true
   \item Need to allocate the stack for the Fiber/Coroutine
   \item Can be suspended from the top level functions and below
   \item Allocation of the memory in advance
-  \item Hard to optimize by compilers
   \end{itemize}
   \end{column}
   \begin{column}{0.48\linewidth}
@@ -286,31 +288,6 @@ autogobble=true
   \only{\inputminted[firstline=3, highlightlines={7,12}]{c++}{code-examples/cppcoro/generator.cpp}}<3>
   \only{\inputminted[firstline=3, highlightlines={8}]{c++}{code-examples/cppcoro/generator.cpp}}<4>
   \only{\inputminted[firstline=3, highlightlines={9-11}]{c++}{code-examples/cppcoro/generator.cpp}}<5>
-\end{frame}
-
-\begin{frame}{generators - excercise}
-  \centering Implement generator:
-
-    \centering triangular number series \hskip 2em \includegraphics[width=0.3\linewidth]{graphics/triangular-series.png}
-
-
-  \vfill
-
-  \footnotesize \href{https://edublognss.wordpress.com/2013/04/16/famous-mathematical-sequences-and-series/}{\alert{source}}
-
-\end{frame}
-
-\begin{frame}{tasks and events}
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={47, 48}]{c++}{code-examples/cppcoro/events.cpp}}<1>
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={49, 66}]{c++}{code-examples/cppcoro/events.cpp}}<2>
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={50, 57, 58, 66}]{c++}{code-examples/cppcoro/events.cpp}}<3>
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={51, 56}]{c++}{code-examples/cppcoro/events.cpp}}<4>
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={52}]{c++}{code-examples/cppcoro/events.cpp}}<5>
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={53}]{c++}{code-examples/cppcoro/events.cpp}}<6>
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={54, 55}]{c++}{code-examples/cppcoro/events.cpp}}<7>
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={59, 65}]{c++}{code-examples/cppcoro/events.cpp}}<8>
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={60-62}]{c++}{code-examples/cppcoro/events.cpp}}<9>
-  \only{\inputminted[firstline=47, lastline=68, highlightlines={63,64}]{c++}{code-examples/cppcoro/events.cpp}}<10>
 \end{frame}
 
 \begin{frame}{other (for now only msvc)}
@@ -415,7 +392,7 @@ autogobble=true
 \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{co\_yield - support for returning intemediate values}
+\begin{frame}[fragile]{co\_yield - support for returning intermediate values}
 \centerline{\alert{\code{co\_yield}}}
 
 \begin{columns}
@@ -472,22 +449,9 @@ co_await promise.
   \only{\inputminted[highlightlines={4}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle-promise.h}}<3>
   \only{\inputminted[highlightlines={5, 10}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle-promise.h}}<4>
   \only{\inputminted[highlightlines={6, 8}]{c++}{code-examples/theory-custom-coroutine/coroutine-handle-promise.h}}<5>
-
-
 \end{frame}
 
 \section{Promise\_type excercise}
-
-\begin{frame}{promise\_type excercise - lazy}
-\centerline{type for lazy initialization}
-\vfill
-requirements:
-\begin{itemize}
-  \item synchronous (no support for multithreading + no support for co\_await).
-  \item no sharing of the value (no copy, only move constructor).
-  \item interface simillar to the std::optional.
-\end{itemize}
-\end{frame}
 
 \begin{frame}{promise\_type excercise - generator}
   \centerline{type for generating sequences}
@@ -496,158 +460,6 @@ requirements:
   \begin{itemize}
     \item synchronous (no support for multithreading + no support for co\_await).
     \item next method should return the value and resume the coroutine.
-    \item interface simillar to the std::optional
-  \end{itemize}
-\end{frame}
-
-\section{Asynchronous coroutines}
-
-\begin{frame}{co\_await}
-\centerline{\alert{co\_await}}
-
-\begin{itemize}
-  \item represents awaiting for operations' completion
-  \item it's argument is (usually) called awaitable
-  \item it's result is usually called awaiter
-\end{itemize}
-\end{frame}
-
-\begin{frame}{co\_await translation}
-\centerline{If compiler meets the co\_await it gets translated into following code:}
-
-\only{\inputminted[highlightlines={3, 7}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<1>
-\only{\inputminted[highlightlines={9, 12}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<2>
-\only{\inputminted[highlightlines={4}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<3>
-\only{\inputminted[highlightlines={6, 2}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<4>
-\only{\inputminted[highlightlines={12}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<5>
-\only{\inputminted[highlightlines={10, 11}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<6>
-\end{frame}
-
-\begin{frame}[fragile]{Await suspend}
-% nothing yet said about the coroutine_handle
-\centerline{await suspend is of the following form:}
-\begin{minted}[autogobble=false]{c++}
-               awaitable.await_suspend(this_coroutine_handle);
-\end{minted}
-
-\centerline{\code{await\_suspend} might return:}
-\vskip 1em
-\hrule
-
-\begin{columns}
-\begin{column}{0.35\linewidth}
-\begin{itemize}[<+- |alert@+>]
-\item \code{void}
-\item \code{bool}
-\item \code{coroutine\_handle}
-\end{itemize}
-\end{column}
-
-\begin{column}{0.66\linewidth}
-\begin{onlyenv}<1>
-\inputminted[firstline=1, lastline=9, linenos=false]{c++}{code-examples/theory-custom-coroutine/co-await-transformation-suspend.cpp}
-\end{onlyenv}
-\begin{onlyenv}<2>
-\inputminted[firstline=10, lastline=20, linenos=false]{c++}{code-examples/theory-custom-coroutine/co-await-transformation-suspend.cpp}
-\end{onlyenv}
-\begin{onlyenv}<3>
-\inputminted[firstline=21, linenos=false]{c++}{code-examples/theory-custom-coroutine/co-await-transformation-suspend.cpp}
-\end{onlyenv}
-\end{column}
-\end{columns}
-
-\end{frame}
-
-\begin{frame}[fragile]{Awaitable and Awaiter}
-\alert{Awaitable} is an object, which is an operand of the co\_await operator
-
-\alert{co\_await <expression>} expression will be processed in following manner
-
-\vskip 2em
-
-\begin{columns}
-\begin{column}{0.4\linewidth}
-\begin{itemize}[<+- |alert@+>]
-  \item await\_transform
-  \item acquiring awaiter
-  \begin{itemize}[<+- |alert@+>]
-  \item co\_await operator
-  \item global co\_await operator
-  \item awaitable to awaiter
-  \end{itemize}
-\end{itemize}
-\end{column}
-
-\begin{column}{0.56\linewidth}
-\footnotesize
-\begin{onlyenv}<1>
-  is performed only if promise has await\_transform function declared
-  \vskip 2em
-
-  \begin{minted}{c++}
-  co_await promise.await_transform(<expr>);
-  \end{minted}
-\end{onlyenv}
-
-\begin{onlyenv}<3>
-  is performed only if awaitable has co\_await operator
-
-  \begin{minted}{c++}
-  auto&& awaiter = 
-         <awaitable>.operator co_await();
-  \end{minted}
-\end{onlyenv}
-
-\begin{onlyenv}<4>
-  is performed only if awaitable there is matching global co\_await operator
-
-  \begin{minted}{c++}
-  auto&& awaiter = 
-         operator co_await(<awaitable>);
-  \end{minted}
-\end{onlyenv}
-
-\begin{onlyenv}<5>
-  \begin{minted}{c++}
-  auto&& awaiter = <awaitable>;
-  \end{minted}
-\end{onlyenv}
-
-\end{column}
-\end{columns}
-\end{frame}
-
-\section{Asynchronous coroutines - excercises}
-
-\begin{frame}{What is the task?}
-  \only{\inputminted[firstline=4, highlightlines={4}]{c++}{code-examples/cppcoro/io.cpp}}<1>
-  \only{\inputminted[firstline=4, highlightlines={6}]{c++}{code-examples/cppcoro/io.cpp}}<2>
-  \only{\inputminted[firstline=4, highlightlines={8-11}]{c++}{code-examples/cppcoro/io.cpp}}<3>
-  \only{\inputminted[firstline=4, highlightlines={12,17}]{c++}{code-examples/cppcoro/io.cpp}}<4>
-  \only{\inputminted[firstline=4, highlightlines={14}]{c++}{code-examples/cppcoro/io.cpp}}<5>
-  \only{\inputminted[firstline=4, highlightlines={15-16}]{c++}{code-examples/cppcoro/io.cpp}}<6>
-\end{frame}
-
-\begin{frame}{task}
-  \centerline{type for asynchronous operations}
-  \vfill
-  requirements:
-  \begin{itemize}
-    \item single-threaded
-    \item asynchronous (support for the co\_await)
-    \item coroutine after finishing must resume the co\_awaiting coroutine
-    \item some kind of the executor needed to start the coroutines
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{event}
-  \centerline{type for communication of the tasks}
-  \vfill
-  requirements:
-  \begin{itemize}
-  \item stores information whether the event is set.
-  \item stores the continuation object.
-  \item launches the continuation on setting up the event.
   \end{itemize}
 \end{frame}
 
