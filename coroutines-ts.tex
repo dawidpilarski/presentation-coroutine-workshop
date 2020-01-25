@@ -48,7 +48,7 @@
 \usepackage{xspace}
 
 \title{Coroutines}
-\subtitle{All you need to know about the coroutines}
+\subtitle{All you need to know about coroutines}
 \date{}
 \author{Dawid Pilarski}
 \institute{dawid.pilarski@panicsoftware.com \\ blog.panicsoftware.com}
@@ -70,9 +70,9 @@ autogobble=true
 \tableofcontents
 \end{frame}
 
-\section{Coroutine theory - what are the coroutines?}
+\section{Coroutine theory - what are coroutines?}
 
-\begin{frame}{What are the coroutines?}
+\begin{frame}{What are coroutines?}
 \alert{Coroutines} are \alert{generalization} of the function, that can be:
 
 \begin{itemize}[<+- |alert@+>]
@@ -108,7 +108,7 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{What are coroutines for?}
-\centerline{Common use cases for the coroutines are:}
+\centerline{Common use cases for coroutines are:}
       \begin{itemize}[<+- |alert@+>]
         \item lazy computation of the sequences (generators)
         \item possibility of introducing asynchronous code with one thread
@@ -169,8 +169,8 @@ autogobble=true
 \centerline{issues:}
 
 \begin{itemize}[<+- |alert@+>]
-  \item on suspension variables needs to be saved somewhere
-  \item coroutine needs to know where it suspended last time
+  \item on suspension, variables need to be saved somewhere
+  \item coroutines needs to know where they suspended last time
 \end{itemize}
 
 \end{column}
@@ -186,16 +186,16 @@ autogobble=true
     };
 
     int foo(foo_state* state){
-      if(state.recent_point == 0) goto recent_point_0;
-      if(state.recent_point == 1) goto recent_point_1;
-      if(state.recent_point == 2) goto recent_point_2;
+      if(state->recent_point == 0) goto recent_point_0;
+      if(state->recent_point == 1) goto recent_point_1;
+      if(state->recent_point == 2) goto recent_point_2;
   
       recent_point_0:
-      return state.a++;
+      return state->a++;
       recent_point_1:
-      return state.a++;
+      return state->a++;
       recent_point_2:
-      return state.a++;
+      return state->a++;
     }
 \end{minted}
 \end{frame}
@@ -220,7 +220,7 @@ autogobble=true
 
 \begin{frame}{Closer look into Boost.Fiber}
   \begin{itemize}[<+- |alert@+>]
-  \item Need to allocate the stack for the Fiber/Coroutine
+  \item Need to allocate a stack for the Fiber/Coroutine
   \item Can be suspended from the top level functions and below
   \item Allocation of the memory in advance
   \item Hard to optimize by compilers
@@ -234,7 +234,7 @@ autogobble=true
   \centerline{Boost.Fiber}
   \vfill
   \begin{itemize}
-  \item Need to allocate the stack for the Fiber/Coroutine
+  \item Need to allocate a stack for the Fiber/Coroutine
   \item Can be suspended from the top level functions and below
   \item Allocation of the memory in advance
   \item Hard to optimize by compilers
@@ -266,7 +266,7 @@ autogobble=true
   \end{center}
   \vfill
 
-  Whether the function is a coroutine depends on \alert{it's definition}.
+  Whether the function is a coroutine depends on \alert{its definition}.
 
 \end{frame}
 
@@ -278,7 +278,7 @@ autogobble=true
   \end{description}
 \end{frame}
 
-\section{Practical part I - using cppcoro library}
+\section{Practical part I - using the cppcoro library}
 
 \begin{frame}{generators - Fibonacci sequence}
   \only{\inputminted[firstline=3, highlightlines={3}]{c++}{code-examples/cppcoro/generator.cpp}}<1>
@@ -288,7 +288,7 @@ autogobble=true
   \only{\inputminted[firstline=3, highlightlines={9-11}]{c++}{code-examples/cppcoro/generator.cpp}}<5>
 \end{frame}
 
-\begin{frame}{generators - excercise}
+\begin{frame}{generators - exercise}
   \centering Implement generator:
 
     \centering triangular number series \hskip 2em \includegraphics[width=0.3\linewidth]{graphics/triangular-series.png}
@@ -325,15 +325,15 @@ autogobble=true
 
 \begin{frame}{promise\_type}
   \begin{itemize}[<+- |alert@+>]
-    \item promise\_type is responsible for coroutine's behavior:
+    \item promise\_type is responsible for the coroutine's behavior:
     \begin{itemize}
-      \item on coroutine's start and stop
-      \item on throwing unhandled exception
-      \item on returning the value
-      \item on yielding the value
-      \item partially on waiting for the task's completion
+      \item for starting and stopping coroutines
+      \item for throwing unhandled exceptions
+      \item for handling the return value
+      \item for handling yielded values
+      \item partially for waiting for the task's completion
     \end{itemize}
-    \item promise\_type is strongly connected with coroutine's returned type
+    \item promise\_type is strongly connected with the coroutine's returned type
     \begin{itemize}[<+- |alert@+>]
       \item it can be a member of the returned type \code{returned\_type::promise\_type}
       \item it can be defined as \code{std::coroutine\_traits<returned\_type>::promise\_type}
@@ -343,7 +343,7 @@ autogobble=true
 \end{frame}
 
 \begin{frame}{coroutine body}
-\centerline{Each time we write coroutine, compiler modifies it's body into following form:}
+\centerline{The compiler transform a coroutine's body into the following form:}
 \only{\inputminted[firstline=1, highlightlines={2}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<1>
 \only{\inputminted[firstline=1, highlightlines={3}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<2>
 \only{\inputminted[firstline=1, highlightlines={4}]{c++}{code-examples/theory-custom-coroutine/coroutine-body.cpp}}<3>
@@ -356,7 +356,7 @@ autogobble=true
 \begin{frame}{promise\_type extensions}
 \centerline{We can extend the coroutine body with:}
 \begin{itemize}
-  \item (mandatory) support for \alert{returning void} or \alert{returning value}
+  \item (mandatory) support for \alert{returning void} or \alert{returning a value}
   \item custom memory allocation algorithm (custom \code{operator new})
   \item (optional) support for \alert{yielding intermediate values}
 \end{itemize}
@@ -415,7 +415,7 @@ autogobble=true
 \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{co\_yield - support for returning intemediate values}
+\begin{frame}[fragile]{co\_yield - support for returning intermediate values}
 \centerline{\alert{\code{co\_yield}}}
 
 \begin{columns}
@@ -476,27 +476,27 @@ co_await promise.
 
 \end{frame}
 
-\section{Promise\_type excercise}
+\section{Promise\_type exercise}
 
-\begin{frame}{promise\_type excercise - lazy}
-\centerline{type for lazy initialization}
+\begin{frame}{promise\_type exercise - lazy}
+\centerline{Type for lazy initialization}
 \vfill
-requirements:
+Requirements:
 \begin{itemize}
   \item synchronous (no support for multithreading + no support for co\_await).
   \item no sharing of the value (no copy, only move constructor).
-  \item interface simillar to the std::optional.
+  \item interface similar to std::optional.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{promise\_type excercise - generator}
-  \centerline{type for generating sequences}
+\begin{frame}{promise\_type exercise - generator}
+  \centerline{Type for generating sequences}
   \vfill
-  requirements:
+  Requirements:
   \begin{itemize}
     \item synchronous (no support for multithreading + no support for co\_await).
     \item next method should return the value and resume the coroutine.
-    \item interface simillar to the std::optional
+    \item interface similar to std::optional
   \end{itemize}
 \end{frame}
 
@@ -506,14 +506,14 @@ requirements:
 \centerline{\alert{co\_await}}
 
 \begin{itemize}
-  \item represents awaiting for operations' completion
-  \item it's argument is (usually) called awaitable
-  \item it's result is usually called awaiter
+  \item represents awaiting the completion of operations
+  \item its argument is (usually) called awaitable
+  \item its result is usually called awaiter
 \end{itemize}
 \end{frame}
 
 \begin{frame}{co\_await translation}
-\centerline{If compiler meets the co\_await it gets translated into following code:}
+\centerline{If the compiler meets a co\_await it translates it into the following code:}
 
 \only{\inputminted[highlightlines={3, 7}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<1>
 \only{\inputminted[highlightlines={9, 12}]{c++}{code-examples/theory-custom-coroutine/co-await-transformation.cpp}}<2>
@@ -525,7 +525,7 @@ requirements:
 
 \begin{frame}[fragile]{Await suspend}
 % nothing yet said about the coroutine_handle
-\centerline{await suspend is of the following form:}
+\centerline{await suspend has following form:}
 \begin{minted}[autogobble=false]{c++}
                awaitable.await_suspend(this_coroutine_handle);
 \end{minted}
@@ -617,7 +617,7 @@ requirements:
 \end{columns}
 \end{frame}
 
-\section{Asynchronous coroutines - excercises}
+\section{Asynchronous coroutines - exercises}
 
 \begin{frame}{What is the task?}
   \only{\inputminted[firstline=4, highlightlines={4}]{c++}{code-examples/cppcoro/io.cpp}}<1>
@@ -629,9 +629,9 @@ requirements:
 \end{frame}
 
 \begin{frame}{task}
-  \centerline{type for asynchronous operations}
+  \centerline{Type for asynchronous operations}
   \vfill
-  requirements:
+  Requirements:
   \begin{itemize}
     \item single-threaded
     \item asynchronous (support for the co\_await)
@@ -641,9 +641,9 @@ requirements:
 \end{frame}
 
 \begin{frame}{event}
-  \centerline{type for communication of the tasks}
+  \centerline{Type for communication of the tasks}
   \vfill
-  requirements:
+  Requirements:
   \begin{itemize}
   \item stores information whether the event is set.
   \item stores the continuation object.
@@ -658,7 +658,7 @@ requirements:
 \begin{columns}[t]
 \footnotesize
 \begin{column}{0.48\linewidth}
-\centerline{recommended lecture:}
+\centerline{recommended lectures:}
 \vskip 0.5em
 \hrule
 \begin{itemize}
