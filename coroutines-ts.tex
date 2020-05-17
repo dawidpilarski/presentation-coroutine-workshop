@@ -76,12 +76,12 @@ autogobble=true
 \alert{Coroutines} are \alert{generalization} of the function, that can be:
 
 \begin{itemize}[<+- |alert@+>]
-\item created
 \item called
 \item returned from
+\item created
+\item destroyed
 \item suspended
 \item resumed
-\item destroyed
 \end{itemize}
 
 \end{frame}
@@ -111,9 +111,7 @@ autogobble=true
 \centerline{Common use cases for the coroutines are:}
       \begin{itemize}[<+- |alert@+>]
         \item lazy computation of the sequences (generators)
-        \item possibility of introducing asynchronous code with one thread
-        \item non blocking I/O operations
-        \item lightweight "concurrency"
+        \item lightweight (cooperative) "concurrency"
       \end{itemize}
 \end{frame}
 
@@ -248,6 +246,7 @@ autogobble=true
   \item Can be suspended only from the top level functions
   \item Minimal memory allocation
   \item Easy to optimize by compilers
+  \item Ends up with lots of allocations
   \end{itemize}
   \end{column}
   
@@ -278,20 +277,25 @@ autogobble=true
   \end{description}
 \end{frame}
 
-\section{Practical part I - using cppcoro library}
+\section{Practical part I - using folly/coro library}
 
 \begin{frame}{generators - Fibonacci sequence}
-  \only{\inputminted[firstline=3, highlightlines={3}]{c++}{code-examples/cppcoro/generator.cpp}}<1>
-  \only{\inputminted[firstline=3, highlightlines={4,5}]{c++}{code-examples/cppcoro/generator.cpp}}<2>
-  \only{\inputminted[firstline=3, highlightlines={7,12}]{c++}{code-examples/cppcoro/generator.cpp}}<3>
-  \only{\inputminted[firstline=3, highlightlines={8}]{c++}{code-examples/cppcoro/generator.cpp}}<4>
-  \only{\inputminted[firstline=3, highlightlines={9-11}]{c++}{code-examples/cppcoro/generator.cpp}}<5>
+  \only{\inputminted[firstline=5, highlightlines={5}]{c++}{code-examples/cppcoro/generator.cpp}}<1>
+  \only{\inputminted[firstline=5, highlightlines={6,7}]{c++}{code-examples/cppcoro/generator.cpp}}<2>
+  \only{\inputminted[firstline=5, highlightlines={9,14}]{c++}{code-examples/cppcoro/generator.cpp}}<3>
+  \only{\inputminted[firstline=5, highlightlines={10}]{c++}{code-examples/cppcoro/generator.cpp}}<4>
+  \only{\inputminted[firstline=5, highlightlines={11-13}]{c++}{code-examples/cppcoro/generator.cpp}}<5>
+  \only{\inputminted[firstline=5, highlightlines={16}]{c++}{code-examples/cppcoro/generator.cpp}}<6>
 \end{frame}
 
 \begin{frame}{generators - excercise}
-  \centering Implement generator:
+  \centering Implement
 
-    \centering triangular number series \hskip 2em \includegraphics[width=0.3\linewidth]{graphics/triangular-series.png}
+    \vskip 1em
+
+    \centering triangular number series \\ \vskip 2em
+
+    \includegraphics[width=0.5\linewidth]{graphics/triangular-series.png}
 
 
   \vfill

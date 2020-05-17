@@ -1,13 +1,17 @@
+#include <iostream>
+#include <array>
 #include <cppcoro/generator.hpp>
 
-cppcoro::generator<unsigned long long> fibonacci_gen() {
+generator<unsigned long long> fibonacci(){
   std::array arr{0ull, 1ull};
-  unsigned long long result=0;
+  auto result = 0ull;
 
-  do {
+  do{
     co_yield result;
     arr[0] = arr[1];
     arr[1] = result;
     result = arr[0] + arr[1];
   } while (result >= arr[1]);
+
+  //implicit co_return;
 }
